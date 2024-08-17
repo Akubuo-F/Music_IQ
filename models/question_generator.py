@@ -7,5 +7,5 @@ class QuestionGenerator:
     def __init__(self, ai_api: AIAPI):
         self._ai_api: AIAPI = ai_api
 
-    def generate_question(self, artist_bio: str) -> Question:
+    def generate_questions(self, artist_bio: str, question_count: int = 3) -> list[Question]:
         ...
