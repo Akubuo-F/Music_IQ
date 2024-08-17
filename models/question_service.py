@@ -1,3 +1,4 @@
+from models.question import Question
 from utils.ai_api import AIAPI
 
 
