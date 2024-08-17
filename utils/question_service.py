@@ -1,5 +1,5 @@
 from models.question import Question
-from utils.ai_api import AIAPI
+from utils.ai_api_client import AIAPI
 
 
 class QuestionService:
