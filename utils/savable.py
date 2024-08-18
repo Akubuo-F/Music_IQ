@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 
 class Savable(ABC):
@@ -10,6 +9,13 @@ class Savable(ABC):
 
     @classmethod
     @abstractmethod
-    def load(cls, object_str: str) -> Any:
+    def load(cls, object_str: str) -> "Savable":
         ...
 
+    @classmethod
+    def from_object_str(cls, data: str) -> "Savable":
+        ...
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Savable":
+        ...

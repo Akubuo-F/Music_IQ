@@ -2,8 +2,6 @@ import json
 import os
 from dotenv import load_dotenv
 
-from utils.savable import Savable
-
 
 class Helper:
 
@@ -22,16 +20,10 @@ class Helper:
 
     @staticmethod
     def get_json_data(json_path: str) -> dict[str, list[str]]:
-        file_path: str = Helper.get_filepath(json_path)
-        with open(file_path, mode="r") as jsonfile:
+        with open(json_path, mode="r") as jsonfile:
             return json.load(jsonfile)
 
     @staticmethod
-    def save_object(obj: Savable, key: str, json_path: str):
-        data: dict[str, list[str]] = Helper.get_json_data(json_path)
-        value = data.get(key, [])
-        obj.save(location=value)
-        data[key] = value
-
-        with open(json_path, "w") as jsonfile:
-            json.dump(data, jsonfile)
+    def save_json_data(data: dict[str, list[str]], json_path: str):
+        with open(json_path, mode="w") as jsonfile:
+            return json.dump(data, jsonfile)
