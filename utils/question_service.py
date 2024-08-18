@@ -7,7 +7,7 @@ class QuestionService:
     def __init__(self, ai_api: AIAPIClient):
         self._ai_api: AIAPIClient = ai_api
 
-    def generate_questions(self, artist_bio: str, question_count: int = 3) -> list[Question]:
+    def generate_questions(self, artist_bio: str, questions_count: int = 3) -> list[Question]:
         ...
 
     def verify_question(self, artist_bio: str, question: Question) -> bool:
