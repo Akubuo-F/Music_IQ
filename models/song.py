@@ -1,37 +1,28 @@
-import json
-
 from utils.savable import Savable
 
 
 class Song(Savable):
 
-    def __init__(self, title: str, artists: list[str], preview_url: str):
+    def __init__(self, title: str, artists: list[str], preview_url: str) -> None:
         self._title: str = title
         self._artists: list[str] = artists
         self._preview_url: str = preview_url
 
-    def save(self, location: list[str]) -> None:
-        location.append(json.dumps(self.__dict__))
-
-    @classmethod
-    def load(cls, object_str: str) -> "Song":
-        data: dict = json.loads(object_str)
-        return cls(
-            title=data["_title"],
-            artists=data["_artists"],
-            preview_url=data["_preview_url"]
-        )
-
-    @classmethod
-    def from_object_str(cls, data: str) -> "Song":
-        return cls.load(data)
-
     @classmethod
     def from_dict(cls, data: dict) -> "Song":
-        title: str = data["name"]
-        artists: list[str] = [artist["name"] for artist in data["artists"]]
-        preview_url: str = data["preview_url"]
-        return cls(title, artists, preview_url)
+        return cls(
+            title=data.get("name", ""),
+            artists=[artist.get("name", "") for artist in data.get("artists", [])],
+            preview_url=data.get("preview_url", "")
+        )
+
+    @property
+    def to_dict(self) -> dict:
+        return {
+            "name": self.title,
+            "artists": [{"name": name} for name in self.artists],
+            "preview_url": self.preview_url
+        }
 
     @property
     def title(self) -> str:
@@ -41,5 +32,9 @@ class Song(Savable):
     def artists(self) -> list[str]:
         return self._artists
 
-    def __repr__(self):
-        return f"Title: {self.title}, Artists: {self.artists}"
+    @property
+    def preview_url(self) -> str:
+        return self._preview_url
+
+    def __repr__(self) -> str:
+        return f"Title: {self.title}, Artists: {', '.join(self.artists)}"

@@ -1,8 +1,12 @@
-from spotipy import Spotify, SpotifyClientCredentials
+import requests
+from spotipy import Spotify, SpotifyClientCredentials, SpotifyException
 
+from builders.song_builder import SongBuilder
+from data.storage import Storage
+from models.model import Model
 from models.song import Song
 from utils.helper import Helper
-from utils.storage_handler import StorageHandler
+from utils.LocalStorage import LocalStorage
 
 
 class SpotifyAPIClient:
@@ -11,45 +15,31 @@ class SpotifyAPIClient:
         self._spotify: Spotify = Spotify(
             auth_manager=SpotifyClientCredentials(
                 client_id=Helper.load_env_variable("SPOTIFY_CLIENT_ID"),
-                client_secret=Helper.load_env_variable("SPOTIFY_CLIENT_SECRETE")
+                client_secret=Helper.load_env_variable("SPOTIFY_CLIENT_SECRET")
             )
         )
 
-    def get_songs(self, query: str, limit=5) -> list[Song]:
+    def get_songs(self, query: str, limit: int = 5) -> list[Song]:
+        results_from_local: list[str] = LocalStorage.search(query=query, storage=Storage.SONG)
+        if results_from_local:
+            return SongBuilder.build_from_local(results_from_local)
+        else:
+            results_from_api: list[dict] = self._search(query, Model.SONG, limit=limit)
+            return SongBuilder.build_from_api(results_from_api)
 
-        """
-            Retrieves a list of songs based on a search query.
-
-            Args:
-                query (str): The search query for retrieving songs.
-                limit (int): The maximum number of songs to fetch from the API if not in stored data.
-
-            Returns:
-                list[Song]: A list of Song objects retrieved either from stored data or the Spotify API.
-            """
+    def _search(self, query: str, model: Model,  limit: int) -> list[dict]:
         try:
-            search_results: list[Song] = StorageHandler.search_song(query=query)
-        except ValueError as e:
-            raise e
-        if not search_results:
-            try:
-                search_results: list[Song] = self._search_song(query, limit=limit)
-            except ValueError as e:
-                raise e
+            search_results: list[dict] = self._spotify.search(
+                q=query,
+                type="track,artist",
+                limit=limit
+            )[model.value[1]]["items"]
+        except requests.exceptions.RequestException as e:
+            raise Exception("Failed to connect to Spotify API; check your network connection.") from e
+        except SpotifyException as e:
+            raise Exception(f"Spotify API returned an error: {e}") from e
 
         return search_results
-
-    def _search_song(self, query: str, limit) -> list[Song]:
-        songs: list[Song] = []
-        search_results: list[dict] = self._spotify.search(q=query, limit=limit)["tracks"]["items"]
-        for song_data in search_results:
-            try:
-                song: Song = Song.from_dict(song_data)
-                StorageHandler.save_song(song, query)
-                songs.append(song)
-            except Exception as e:
-                raise e
-        return songs
 
 
 if __name__ == '__main__':
@@ -57,3 +47,4 @@ if __name__ == '__main__':
     songs_ = spotify.get_songs("Mamushi")
     for song_ in songs_:
         print(song_)
+        LocalStorage.save(song_, "Mamushi", Storage.SONG)
