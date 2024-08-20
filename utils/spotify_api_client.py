@@ -1,12 +1,14 @@
 import requests
 from spotipy import Spotify, SpotifyClientCredentials, SpotifyException
 
+from builders.artist_builder import ArtistBuilder
 from builders.song_builder import SongBuilder
 from data.storage import Storage
+from models.artist import Artist
 from models.model import Model
 from models.song import Song
 from utils.helper import Helper
-from utils.LocalStorage import LocalStorage
+from utils.local_storage import LocalStorage
 
 
 class SpotifyAPIClient:
@@ -20,12 +22,23 @@ class SpotifyAPIClient:
         )
 
     def get_songs(self, query: str, limit: int = 5) -> list[Song]:
-        results_from_local: list[str] = LocalStorage.search(query=query, storage=Storage.SONG)
-        if results_from_local:
-            return SongBuilder.build_from_local(results_from_local)
+        local_data: list[str] = LocalStorage.search(query=query, storage=Storage.SONG)
+        if local_data:
+            return SongBuilder.build_from_local(local_data)
         else:
-            results_from_api: list[dict] = self._search(query, Model.SONG, limit=limit)
-            return SongBuilder.build_from_api(results_from_api)
+            api_data: list[dict] = self._search(query, Model.SONG, limit=limit)
+            return SongBuilder.build_from_api(api_data)
+
+    def get_artists(self, song: Song) -> list[Artist]:
+        local_data: list[str] = LocalStorage.search(query=song.title, storage=Storage.ARTIST)
+        if local_data:
+            artists: list[Artist] = ArtistBuilder.build_from_local(local_data)
+        else:
+            api_data: list[dict] = []
+            for name in song.artists:
+                api_data += self._search(name, Model.ARTIST, limit=1)
+            artists: list[Artist] = ArtistBuilder.build_from_api(api_data)
+        return artists
 
     def _search(self, query: str, model: Model,  limit: int) -> list[dict]:
         try:
@@ -43,8 +56,31 @@ class SpotifyAPIClient:
 
 
 if __name__ == '__main__':
-    spotify = SpotifyAPIClient()
-    songs_ = spotify.get_songs("Mamushi")
-    for song_ in songs_:
-        print(song_)
-        LocalStorage.save(song_, "Mamushi", Storage.SONG)
+    def test_get_songs():
+        LocalStorage.clear_storage(Storage.SONG)
+        spotify = SpotifyAPIClient()
+        songs = spotify.get_songs("Mamushi")
+        for song in songs:
+            print(song, song.image_url)
+            LocalStorage.save(song, "Mamushi", Storage.SONG)
+
+    def test_get_artists():
+        LocalStorage.clear_storage(Storage.ARTIST)
+        fake_song = Song("Mamushi (feat. Yuki Chiba), Artists: Megan Thee Stallion",
+                         ["Megan The Stallion", "千葉雄喜"],
+                         "",
+                         "")
+        spotify = SpotifyAPIClient()
+        artists = spotify.get_artists(fake_song)
+        for artist in artists:
+            print(artist, artist.image_url)
+            LocalStorage.save(artist, fake_song.title, Storage.ARTIST)
+
+    def main():
+        test_get_songs()
+        print("Next")
+        test_get_artists()
+        LocalStorage.clear_storage(Storage.ARTIST)
+        LocalStorage.clear_storage(Storage.SONG)
+
+    main()

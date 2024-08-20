@@ -13,7 +13,7 @@ class Artist(Savable):
         return {
             "name": self.name,
             "bio": self.bio,
-            "image_url": self.image_url
+            "images": [{"url": self.image_url}]
         }
 
     @classmethod
@@ -21,7 +21,7 @@ class Artist(Savable):
         return cls(
             name=data.get("name", ""),
             bio=data.get("bio", ""),
-            image_url=data.get("image_url", "")
+            image_url=data.get("images", [{}])[0].get("url", "")
         )
 
     @property
@@ -35,3 +35,6 @@ class Artist(Savable):
     @property
     def image_url(self) -> str:
         return self._image_url
+
+    def __repr__(self) -> str:
+        return f"Name: {self.name}, Biography: {self.bio}"

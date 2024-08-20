@@ -22,3 +22,8 @@ class LocalStorage:
         datapath = Helper.get_filepath(storage.value)
         data = Helper.get_json_data(datapath)
         return data.get(query, [])
+
+    @staticmethod
+    def clear_storage(storage: Storage) -> None:
+        storage_path: str = Helper.get_filepath(storage.value)
+        Helper.save_json_data({}, storage_path)

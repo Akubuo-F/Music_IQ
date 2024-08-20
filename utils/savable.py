@@ -16,8 +16,3 @@ class Savable(ABC):
 
     def save_to_location(self, location: list[str]) -> None:
         location.append(json.dumps(self.to_dict))
-
-    @classmethod
-    def load_from_json_str(cls, object_str: str) -> "Savable":
-        as_dict: dict = json.loads(object_str)
-        return cls.from_dict(as_dict)
