@@ -3,9 +3,10 @@ from utils.savable import Savable
 
 class Song(Savable):
 
-    def __init__(self, title: str, artists: list[str], preview_url: str) -> None:
+    def __init__(self, title: str, artists: list[str], image_url: str, preview_url: str) -> None:
         self._title: str = title
         self._artists: list[str] = artists
+        self._image_url: str = image_url
         self._preview_url: str = preview_url
 
     @classmethod
@@ -13,6 +14,7 @@ class Song(Savable):
         return cls(
             title=data.get("name", ""),
             artists=[artist.get("name", "") for artist in data.get("artists", [])],
+            image_url=data.get("album", {}).get("images", [{}])[0].get("url", ""),
             preview_url=data.get("preview_url", "")
         )
 
@@ -21,6 +23,7 @@ class Song(Savable):
         return {
             "name": self.title,
             "artists": [{"name": name} for name in self.artists],
+            "album": {"images": [{"url": self.image_url}]},
             "preview_url": self.preview_url
         }
 
@@ -31,6 +34,10 @@ class Song(Savable):
     @property
     def artists(self) -> list[str]:
         return self._artists
+
+    @property
+    def image_url(self) -> str:
+        return self._image_url
 
     @property
     def preview_url(self) -> str:

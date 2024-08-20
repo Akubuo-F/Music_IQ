@@ -20,8 +20,13 @@ class Helper:
 
     @staticmethod
     def get_json_data(json_path: str) -> dict[str, list[str]]:
-        with open(json_path, mode="r") as jsonfile:
-            return json.load(jsonfile)
+        data: dict[str, list[str]] = {}
+        try:
+            with open(json_path, mode="r") as jsonfile:
+                data = json.load(jsonfile)
+                return data
+        except json.JSONDecodeError:
+            return data
 
     @staticmethod
     def save_json_data(data: dict[str, list[str]], json_path: str):
