@@ -28,9 +28,17 @@ class Artist(Savable):
     def name(self) -> str:
         return self._name
 
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
+
     @property
     def bio(self) -> str:
         return self._bio
+
+    @bio.setter
+    def bio(self, bio: str) -> None:
+        self._bio = bio
 
     @property
     def image_url(self) -> str:
