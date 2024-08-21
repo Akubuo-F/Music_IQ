@@ -1,4 +1,4 @@
-from data.storage import Storage
+from utils.storage import Storage
 from utils.helper import Helper
 from utils.savable import Savable
 

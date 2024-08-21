@@ -3,7 +3,7 @@ from spotipy import Spotify, SpotifyClientCredentials, SpotifyException
 
 from builders.artist_builder import ArtistBuilder
 from builders.song_builder import SongBuilder
-from data.storage import Storage
+from utils.storage import Storage
 from models.artist import Artist
 from models.model import Model
 from models.song import Song
