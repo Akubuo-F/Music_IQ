@@ -1,11 +1,11 @@
 from models.question import Question
-from utils.ai_api_client import AIAPIClient
 
 
 class QuestionService:
 
-    def __init__(self, ai_api: AIAPIClient):
-        self._ai_api: AIAPIClient = ai_api
+    def __init__(self, generator: QuestionGenerator, verifier: QuestionVerifier):
+        self._generator: QuestionGenerator = generator
+        self._verifier: QuestionVerifier = verifier
 
     def generate_questions(self, artist_bio: str, questions_count: int = 3) -> list[Question]:
         ...
