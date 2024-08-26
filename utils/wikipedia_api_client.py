@@ -11,13 +11,13 @@ class WikipediaAPIClient:
         )
 
     def get_artist_info(self, artist_name: str) -> dict[str, str]:
-        page_details: dict[str, str] = WikipediaAPIClient._get_page_details(artist_name)
+        page_details: dict[str, str] = WikipediaAPIClient._get_page_details(f"{artist_name} musician")
         page_title: str = page_details.get("title", "")
         page: WikipediaPage = self._wikipedia.page(title=page_title)
         if page.exists():
             return {
                 "name": page_title,
-                "bio": page.text
+                "bio": page.summary
             }
         else:
             raise ValueError("Wiki page does not exist.")
@@ -46,6 +46,12 @@ if __name__ == '__main__':
     artist1 = "Megan Thee Stallion"
     artist2 = "千葉雄喜"
     artist3 = "Drake"
-    for artist in (artist1, artist2, artist3):
+    artists = (
+        artist1,
+        artist2,
+        artist3,
+    )
+    for artist in artists:
         artist_info = wikipedia.get_artist_info(artist)
-        print(f"Name: {artist_info["name"]}, Bio: {artist_info["bio"]}")
+        print(f"Name: {artist_info['name']}, Bio: {artist_info['bio']}")
+        print(len(artist_info["bio"]))
